@@ -1,0 +1,29 @@
+{
+  "name": "razor-vue-lint",
+  "version": "1.0.0",
+  "description": "Razor-VueJS Server rendered views linting ",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "vue",
+    "vuejs",
+    "razor",
+    "mvc",
+    "linting",
+    "lint",
+    "template",
+    "view"
+  ],
+  "author": "Kristian Mandrup",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^24.5.0"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "./test/setup"
+    ]
+  }
+}

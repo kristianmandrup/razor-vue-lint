@@ -1,0 +1,150 @@
+
+@using EPiServer.Core
+@using EPiServer.Web.Mvc.Html
+@using Olympus.Core.Models.Blocks.Subscription
+@model  Olympus.Core.ViewModels.BlockViewModelBase<SubscriptionOfferingsBlock>
+ 
+<subscription-offerings inline-template>
+  <div class="ss-grid ss-grid--no-gutter ss-c-offering ss-c-subscription-offerings-possible-subscriptions">
+    <div class="ss-c-page-title ss-c-subscription-page-title ss-grid__col--md-10 ss-grid__col--md-offset-1 ss-grid__col--xs-10 ss-grid__col--xs-offset-1">
+         <h2>@Html.PropertyFor(m => m.CurrentBlock.Heading)</h2>&nbsp;<p>@Html.PropertyFor(m => m.CurrentBlock.Subtext)</p>
+       </div>
+ 
+    <template v-if="ajax.loading">
+ 
+    </template>
+ 
+    <template v-else-if="offeringsAvailable">
+      <div class="ss-grid__col--xs-12 ss-c-subscription-offerings-possible-subscriptions__sliders">
+        <carousel ref="headings" :options="headingsOptions">
+          <slide class="slide-full">
+            <backline class="ss-c-subscription-offerings-possible-subscriptions__divivder-heading">
+              <h2 id="current-subscription-label">@Html.PropertyFor(m => m.CurrentBlock.CurrentBacklineText)</h2>
+            </backline>
+          </slide>
+          <slide class="slide-full" :style="'max-width: ' + sliderLabelWidth + 'px'">
+            <backline class="ss-c-subscription-offerings-possible-subscriptions__divivder-heading">
+              <h2 id="possible-subscription-label">@Html.PropertyFor(m => m.CurrentBlock.OfferedSubscriptionsBacklineText)</h2>
+            </backline>
+          </slide>
+        </carousel>
+ 
+        <carousel :options="subscriptionSliderOptions"
+                             v-on:init="initializeSlider"
+                             ref="carousel"
+                             class="ss-c-subscription-offerings-possible-subscriptions__list">
+          @* current *@
+                <slide class="slide ss-c-subscription-offerings-possible-subscription">
+                  <div class="ss-c-subscription-offerings-possible-subscription__inner">
+                    <div class="ss-c-offering__item">
+                           <div class="ss-c-subscription-offerings-possible-subscription__current">@Html.PropertyFor(m => m.CurrentBlock.CurrentIndicatorText)</div>
+ 
+                           <h3 class="ss-c-offering__name">{{ currentSubscription.name }}</h3>
+ 
+                      <div class="ss-c-subscription-offerings-possible-subscription__data">
+                        <strong v-if="currentSubscription.hasUnlimitedData">@Html.PropertyFor(m => m.CurrentBlock.UnlimitedDataLabel)</strong>
+                        <strong v-else>{{ currentSubscription.dataQuota }} <abbr :title="currentSubscription.dataUnitLongForm">{{ currentSubscription.dataUnit }}</abbr></strong>
+                        <small>Heraf {{ currentSubscription.dataQuotaEU }} <abbr :title="currentSubscription.dataUnitEULongForm">{{ currentSubscription.dataUnitEU }}</abbr> i EU</small>
+                      </div>
+ 
+                      <ul class="ss-c-offering__details">
+                        <li v-if="currentSubscription.hasUnlimitedSMS && currentSubscription.hasUnlimitedVoice" class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                          @Html.PropertyFor(m => m.CurrentBlock.UnlimitedSmsVoiceLabel)
+                        </li>
+ 
+                        <template v-else>
+                          <li v-if="currentSubscription.hasUnlimitedVoice" class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                            @Html.PropertyFor(m => m.CurrentBlock.UnlimitedVoiceLabel)
+                          </li>
+ 
+                          <li v-else class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                                    Inkluderet {{ formatTime(currentSubscription.voiceQuota) }} timers tale
+                          </li>
+ 
+                          <li v-if="currentSubscription.hasUnlimitedSMS" class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                                    @Html.PropertyFor(m => m.CurrentBlock.UnlimitedSmsLabel)
+                          </li>
+ 
+                          <li v-else class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                                     Inkluderet {{ currentSubscription.smsQuota }} SMS/MMS
+                          </li>
+                        </template>
+                      </ul>
+ 
+                      <div class="ss-c-subscription-offerings-possible-subscription__price">
+                        <strong class="ss-c-subscription-offerings-possible-subscription__price-amount">{{ currentSubscription.price }}</strong>
+                        <abbr class="ss-c-subscription-offerings-possible-subscription__price-unit" title="Danske kroner">kr</abbr>
+                        <abbr class="ss-c-subscription-offerings-possible-subscription__price-time" title="Per måned">/md.</abbr>
+                      </div>
+ 
+                      <button class="ss-c-btn ss-c-btn--accent" disabled>
+                             @Html.PropertyFor(m => m.CurrentBlock.ConfirmButtonLabel)
+                      </button>
+                    </div>
+                  </div>
+                </slide>
+          @* available offerings *@
+          <slide class="slide ss-c-subscription-offerings-possible-subscription"
+                           v-for="offering in offerings"
+                           :key="offering.id">
+                  <div class="ss-c-subscription-offerings-possible-subscription__inner">
+                    <div class="ss-c-offering__item">
+                      <h3 class="ss-c-offering__name">{{ offering.title }} {{ offering.subtitle }}</h3>
+ 
+                           <div class="ss-c-subscription-offerings-possible-subscription__data">
+                             <strong v-if="offering.hasUnlimitedData">@Html.PropertyFor(m => m.CurrentBlock.UnlimitedDataLabel)</strong>
+                             <strong v-else>{{ offering.dataQuota }} <abbr :title="offering.dataUnitLong">{{ offering.dataUnit }}</abbr></strong>
+                             <small>Heraf {{ offering.dataQuotaEU }} <abbr :title="offering.dataUnitLong">{{ offering.dataUnitEU }}</abbr> i EU</small>
+                           </div>
+ 
+                      <ul class="ss-c-offering__details">
+                             <li v-if="offering.hasUnlimitedSMS && offering.hasUnlimitedVoice" class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                               @Html.PropertyFor(m => m.CurrentBlock.UnlimitedSmsVoiceLabel)
+                             </li>
+ 
+                             <template v-else>
+                               <li v-if="offering.hasUnlimitedVoice" class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                                 @Html.PropertyFor(m => m.CurrentBlock.UnlimitedVoiceLabel)
+                               </li>
+ 
+                               <li v-else class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                                 Inkluderet {{ formatTime(offering.voiceQuota) }} timers tale
+                               </li>
+ 
+                               <li v-if="offering.hasUnlimitedSMS" class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                                 @Html.PropertyFor(m => m.CurrentBlock.UnlimitedSmsLabel)
+                               </li>
+ 
+                               <li v-else class="ss-c-subscription-offerings-possible-subscription__usp-list-item">
+                                 Inkluderet {{ offering.smsQuota }} SMS/MMS
+                               </li>
+                             </template>
+ 
+                             <li v-if="offering.text" v-html="offering.text" class="ss-c-subscription-offerings-possible-subscription__usp-list-item ss-c-subscription-offerings-possible-subscription__usp-list-item--rich-text"></li>
+                      </ul>
+ 
+                           <div class="ss-c-subscription-offerings-possible-subscription__price">
+                             <strong class="ss-c-subscription-offerings-possible-subscription__price-amount">{{ offering.price }}</strong>
+                             <abbr class="ss-c-subscription-offerings-possible-subscription__price-unit" title="Danske kroner">kr</abbr>
+                             <abbr class="ss-c-subscription-offerings-possible-subscription__price-time" title="Per måned">/md.</abbr>
+                           </div>
+ 
+                      <button class="ss-c-btn ss-c-btn--accent"
+                                         v-on:click.prevent="handleOfferingSelect(offering, '@(Model.CurrentBlock.ConfirmButtonLink?.ID)')"
+                                         :disabled="offering.currentSubscriptionId">@Html.PropertyFor(m => m.CurrentBlock.ConfirmButtonLabel)</button>
+                    </div>
+                  </div>
+          </slide>
+        </carousel>
+      </div>
+    </template>
+ 
+    <template v-else>
+         <div class="ss-c-subscription-offerings-possible-subscription__inner ss-grid__col--md-10 ss-grid__col--md-offset-1 ss-grid__col--xs-10 ss-grid__col--xs-offset-1">
+              <div style="padding-left: 20px;">
+                @Html.PropertyFor(m => m.CurrentBlock.NoOfferingsText)
+              </div>
+         </div>
+    </template>
+  </div>
+</subscription-offerings>
