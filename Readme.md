@@ -1,5 +1,7 @@
 # razor-vue-lint
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/kristianmandrup/razor-vue-lint.svg)](https://greenkeeper.io/)
+
 Make Eslint work with .NET Razor views that contain inlined Vue templates.
 Wraps Razor expressions with marker blocks that are ignored by ES Lint, so that the ES linter only lints the Vue templates in the file.
 
