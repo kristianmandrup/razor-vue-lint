@@ -23,10 +23,10 @@
     "recursive-readdir": "kristianmandrup/recursive-readdir#master"
   },
   "devDependencies": {
-    "mock-fs": "^4.8.0",
-    "metro-memory-fs": "^0.53.1",
     "jest": "^24.5.0",
-    "memfs": "^2.15.2"
+    "memfs": "^2.15.2",
+    "metro-memory-fs": "^0.53.1",
+    "mock-fs": "^4.8.0"
   },
   "jest": {
     "setupFilesAfterEnv": [

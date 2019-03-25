@@ -1,4 +1,4 @@
-const folder = "path/to/fake/dir";
+const folder = "/app";
 const cshtmlFile = `@using Olympus.Core.Models.Blocks.Subscription
       @model  Olympus.Core.ViewModels.BlockViewModelBase<SubscriptionOfferingsBlock>     
       <subscription inline-template>

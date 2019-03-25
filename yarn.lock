@@ -2307,8 +2307,8 @@ realpath-native@^1.1.0:
     util.promisify "^1.0.0"
 
 recursive-readdir@kristianmandrup/recursive-readdir#master:
-  version "2.2.2"
-  resolved "https://codeload.github.com/kristianmandrup/recursive-readdir/tar.gz/508e80e96adcbc7fb50564dd015116b06317dc08"
+  version "2.2.3"
+  resolved "https://codeload.github.com/kristianmandrup/recursive-readdir/tar.gz/32f8aeb745e96faa74f8419ac57e1c082fdb5ffb"
   dependencies:
     minimatch "^3.0.4"
 

@@ -130,28 +130,28 @@ See `traverse.js` source for more configuration options. You can also use the in
 
 ## Testing
 
-We are using [jest](https://jestjs.io) for unit testing
+We are using [jest](https://jestjs.io) for unit testing.
 
-To mock the file system for testing traverse, you can try to use any of the following
+### Testing traverse
 
-- [jest-plugin-fs](https://www.npmjs.com/package/jest-plugin-fs)
-- [memFs](https://github.com/streamich/memfs)
-- [mock-fs](npmjs.com/package/mock-fs)
+To mock the file system for testing traverse, we are using [memFs](https://github.com/streamich/memfs)
 
-See `traverse.test.js` for current attempt at testing. Currently using a variant of `recursive-readdir` which allows passing in a custom `fs` (file system object) to be used.
-
-Should work fine with `memFs` (in-memory file system).
+See `traverse.test.js` for traverse tests. Currently using a variant of `recursive-readdir` which allows passing in a custom `fs` (file system object) to be used. This approach works well to make `memFs` (in-memory file system) work with Jest.
 
 See the `test/data` for testing infrastructure, such as fake file system setup and test files.
+
+You can add `debug: true` as an option to enable debug tracing.
+
+#### memfs
+
+`vol` is an instance of `Volume` constructor, it is the default volume created for your convenience.
+`fs` is an fs-like object created from vol using `createFsFromVolume(vol)`.
+
+#### Alternative file mocking
+
+- [jest-plugin-fs](https://www.npmjs.com/package/jest-plugin-fs)
+- [mock-fs](npmjs.com/package/mock-fs)
 
 ## License
 
 MIT
-
-```
-
-```
-
-```
-
-```

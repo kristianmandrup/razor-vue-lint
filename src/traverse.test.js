@@ -1,46 +1,33 @@
-const fs = require("fs");
 const { processFiles, processFile } = require("./traverse");
-const restoreFs = () => {};
 
-const csHtmlFile = `@using Olympus.Core.Models.Blocks.Subscription
-@model  Olympus.Core.ViewModels.BlockViewModelBase<SubscriptionOfferingsBlock>
-<subscription inline-template>`;
+const { createFsFromVolume } = require("memfs");
 
-const mockFs = () => {
-  const MemoryFs = require("metro-memory-fs");
-  const folder = "/app";
+const { folder } = require("../test/data/files");
+const { fs, mockFs } = require("../test/data/memfs");
 
-  jest.mock(
-    "fs",
-    () =>
-      new MemoryFs({
-        cwd: folder
-      })
-  );
-};
+const $fileSys = fs;
+let volume;
 
-beforeEach(() => fs.reset()); // optional, cleans up the whole filesystem
-
-const writeFiles = () => {
-  fs.writeFileSync("/foo.cshtml", csHtmlFile);
-  fs.writeFileSync("/bar.txt", "hello world");
-
-  fs.mkdirSync("/current");
-  fs.mkdirSync("/current/working");
-  fs.writeFileSync("blap.txt", "test123");
-  fs.mkdirSync("/current/working/dir");
-  fs.writeFileSync("blip.txt", "test456");
+const restoreFs = () => {
+  volume.reset();
 };
 
 describe("traverse", () => {
   // Create an in-memory filesystem.
   beforeEach(() => {
-    mockFs();
-    writeFiles();
+    // console.log("before Each");
+    volume = mockFs({ folder });
+    // $fileSys = fs;
+    // console.log("fileSys mocked");
+    // $fileSys = createFsFromVolume(volume);
   });
+
   afterEach(() => {
     restoreFs();
   });
+
+  const noop = () => {};
+  const onSuccess = noop;
 
   describe("processFiles", () => {
     describe("folder option", () => {
@@ -53,7 +40,44 @@ describe("traverse", () => {
       });
 
       test("existing folder", () => {
-        expect(() => processFiles({ folder, fs })).not.toThrow();
+        expect(() => {
+          processFiles({
+            folder,
+            debug: false,
+            fs: $fileSys,
+            fakeFs: true,
+            onSuccess
+          });
+        }).not.toThrow();
+      });
+    });
+
+    describe("existing folder", () => {
+      test("processed result", done => {
+        const onSuccess = (result, opts) => {
+          // console.log({ result, opts });
+          const written = result[0];
+          expect(written.filePath).toEqual("/app/src/index.cshtml");
+          expect(written.content).toMatch(/eslint-disable/);
+          expect(written.content).toMatch(/eslint-enable/);
+          done();
+        };
+
+        // if ($fileSys.existsSync(folder)) {
+        //   console.log(
+        //     "TESTING: mocked",
+        //     { folder },
+        //     "created. confirm exists on fs"
+        //   );
+        // }
+
+        processFiles({
+          folder,
+          debug: false,
+          fs: $fileSys,
+          fakeFs: true,
+          onSuccess
+        });
       });
     });
   });
