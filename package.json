@@ -18,6 +18,9 @@
   ],
   "author": "Kristian Mandrup",
   "license": "MIT",
+  "dependencies": {
+    "recursive-readdir": "^2.2.2"
+  },
   "devDependencies": {
     "jest": "^24.5.0"
   },

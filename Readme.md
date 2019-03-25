@@ -72,13 +72,70 @@ const lintEscapedCode = addIgnoreEsLintBlocksForRazorExpressions(code);
 // TODO: write escaped cshtml file to a file
 ```
 
-You will need to write a script to recursively process your code files.
+You will need to write a script to recursively process your code files (see below).
 
 Then you can setup eslint to lint the cshtml files using your Vue configuration of preference and it should skip most of the sections Razor expressions, now inside "ignore blocks", between:
 
 - `/* eslint-disable */`
 - `/* eslint-enable */`
 
+## Traverse
+
+WIP: _not tested_
+
+You can now use traverse functionality to:
+
+- recursively traverse files in a folder tree
+- process each file matching a criteria such as file extension
+- execute the function to insert es-lint escape block on Razor expressions
+- save transformed content to either a new file or overwriting original
+
+```js
+const path = require("path");
+const traverse = require("razor-vue-lint");
+const { processFiles } = traverse;
+
+const folder = path.join(__dirname, "MyProject");
+const onSuccess = result => {
+  console.log("DONE");
+};
+
+processFiles({ folder, onSuccess });
+```
+
+### Advanced usage
+
+In this example we add a custom filter function `fileFilter` to process any file with `.cs` as part of the file extension at the end of the file name. We also pass in a custom function `destFilePathOf` to calculate to destination file path to write each transformed file to.
+
+In addition we pass in the usual suspects: `folder` and `onSuccess` with `errorFn` a custom error handler.
+
+```js
+const path = require("path");
+const folder = path.join(__dirname, "MyProject");
+const onSuccess = result => {
+  console.log(result);
+};
+
+const opts = {
+  folder,
+  onSuccess,
+  destFilePathOf: filePath => filePath + ".lint",
+  fileFilter: filePath => filePath.match(/\.cs\w+$/),
+  errorFn: err => throw err
+};
+processFiles({ folder, onSuccess });
+```
+
+See `traverse.js` source for more configuration options. You can also use the internal functions to easily compose custom traverse/transform functionality.
+
 ## License
 
 MIT
+
+```
+
+```
+
+```
+
+```
