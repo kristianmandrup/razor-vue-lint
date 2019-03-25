@@ -1,6 +1,6 @@
 {
   "name": "razor-vue-lint",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Razor-VueJS Server rendered views linting ",
   "main": "index.js",
   "scripts": {
@@ -19,10 +19,14 @@
   "author": "Kristian Mandrup",
   "license": "MIT",
   "dependencies": {
-    "recursive-readdir": "^2.2.2"
+    "jest-plugin-fs": "^2.9.0",
+    "recursive-readdir": "kristianmandrup/recursive-readdir#master"
   },
   "devDependencies": {
-    "jest": "^24.5.0"
+    "mock-fs": "^4.8.0",
+    "metro-memory-fs": "^0.53.1",
+    "jest": "^24.5.0",
+    "memfs": "^2.15.2"
   },
   "jest": {
     "setupFilesAfterEnv": [

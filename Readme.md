@@ -128,6 +128,22 @@ processFiles({ folder, onSuccess });
 
 See `traverse.js` source for more configuration options. You can also use the internal functions to easily compose custom traverse/transform functionality.
 
+## Testing
+
+We are using [jest](https://jestjs.io) for unit testing
+
+To mock the file system for testing traverse, you can try to use any of the following
+
+- [jest-plugin-fs](https://www.npmjs.com/package/jest-plugin-fs)
+- [memFs](https://github.com/streamich/memfs)
+- [mock-fs](npmjs.com/package/mock-fs)
+
+See `traverse.test.js` for current attempt at testing. Currently using a variant of `recursive-readdir` which allows passing in a custom `fs` (file system object) to be used.
+
+Should work fine with `memFs` (in-memory file system).
+
+See the `test/data` for testing infrastructure, such as fake file system setup and test files.
+
 ## License
 
 MIT

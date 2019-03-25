@@ -5,8 +5,15 @@ const { replaceAll } = require("./eslint-escape-razor-exprs");
 
 const fileExtOf = filePath => path.extname(filePath).slice(1);
 
-const readFile = filePath => fs.readFileSync(filePath);
-const writeFile = (filePath, data) => fs.writeFileSync(filePath, data);
+const readFile = (filePath, opts = {}) => {
+  const fs = opts.fs || fs;
+  fs.readFileSync(filePath);
+};
+
+const writeFile = (filePath, data, opts = {}) => {
+  const fs = opts.fs || fs;
+  fs.writeFileSync(filePath, data);
+};
 
 const processFile = (filePath, opts) => {
   const readFile = opts.readFile || readFile;
@@ -17,7 +24,7 @@ const processFile = (filePath, opts) => {
   const content = replaceAll(fileContent);
   let written = false;
   if (opts.write) {
-    writeFile(destFilePath, content);
+    writeFile(destFilePath, content, opts);
     written = true;
   }
   return {
@@ -62,12 +69,15 @@ const successFn = opts => {
 const processFiles = (opts = {}) => {
   const errorFn = opts.errorFn || defaults.errorFn;
   const folder = opts.folder;
+  const fs = opts.fs || fs;
+
+  opts.fs = fs;
   opts.defaults = opts.defaults || defaults;
 
   if (!fs.existsSync(folder)) {
     throw `The folder: ${folder} does not exist`;
   }
-  recursive(folder).then(successFn(opts), errorFn);
+  recursive(folder, opts).then(successFn(opts), errorFn);
 };
 
 module.exports = {
