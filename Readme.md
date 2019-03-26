@@ -282,6 +282,72 @@ Create a `scripts/lint-views.js` (or some other script) file which should:
 - run `eslint **/*.cshtml.lintable` to lint the lintable files and print linting errors
 - cleanup `.lintable` files so they are not committed
 
+See [Node.js Child Processes: Everything you need to know](https://medium.freecodecamp.org/node-js-child-processes-everything-you-need-to-know-e69498fe970a)
+
+Childprocess command alternatives:
+
+- `fork`
+- `spawn`
+- `exec`
+- `execFile`
+
+The runscript takes either a single string for a spawn command or an options object (fine control).
+For object, pass a `command` and either an `arg` (string) or `args` (array) of command arguments
+
+```js
+runScript(
+  { command: "execFile", arg: "./make-vue-razor-views-lintable.js" },
+  handlerFn
+);
+```
+
+The `runScript` function uses the special convention that if given only a string argument and the first character is a `:` it will use `shell:true` to run the command (ie. execute it as a shell command)
+
+Full example:
+
+```js
+const { runScript } = require("razor-vue-lint")
+
+const exitFailure = () => Process.exit(1)
+
+const cleanup = ({failure, success, error} = {}) => {
+  runScript(":del /s /q *.lintable", { err } => {
+    if (err || failure) {
+      const errorMsg = error || err
+      console.error(errorMsg)
+      exitFailure()
+    }
+    if (success) {
+      console.error('SUCCESS')
+    }
+  }
+}
+
+// Now we can run a script and invoke a callback when complete, e.g.
+runScript(":node ./make-vue-razor-views-lintable.js", ({ err }) => {
+  if (err) {
+    cleanup({failure: true, error: err})
+  };
+
+  runScript(":eslint **/*.cshtml.lintable", { err } => {
+    const opts = err ? {failure: true} : {success: true}
+    cleanup(opts)
+  });
+});
+```
+
+The `exec` function is a good choice if you need to use the shell syntax and if the size of the data expected from the command is small. (Remember, `exec` will buffer the whole data in memory before returning it.)
+
+The `spawn` function is a much better choice when the size of the data expected from the command is large, because that data will be streamed with the standard IO objects.
+
+With the `shell: true` option, we are able to use the shell syntax in the passed `spawn` command, just like we can do by default with `exec`.
+
+We can execute it in the background using the `detached: true` option
+
+If you need to execute a file without using a shell, the `execFile` function is what you need. It behaves exactly like the `exec` function, but does not use a shell, which makes it a bit more efficient.
+
+The `fork` function is a variation of the spawn function for spawning node processes. The biggest difference between spawn and fork is that a communication channel is established to the child process when using fork, so we can use the send function on the forked process along with the global process object itself to exchange messages between the parent and forked processes.
+
 ### VS Code
 
 To configure linting vue files in VS Code:
