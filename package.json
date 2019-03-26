@@ -1,6 +1,6 @@
 {
   "name": "razor-vue-lint",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Razor-VueJS Server rendered views linting ",
   "main": "index.js",
   "scripts": {
