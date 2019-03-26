@@ -306,7 +306,7 @@ Add the following to your `package.json` file (or create a new one using `npm in
 ```json
 {
   "devDependencies": {
-    "narrange": "~1.0.0"
+    "razor-vue-lint": "~1.1.0",
     "husky": "~1.3.1"
   },
   "husky": {
@@ -349,34 +349,43 @@ The `runScript` function uses the special convention that if given only a string
 Full example:
 
 ```js
-const { runScript } = require("razor-vue-lint")
+const { runScript } = require("razor-vue-lint");
 
-const exitFailure = () => Process.exit(1)
+const exitFailure = () => Process.exit(1);
 
-const cleanup = ({failure, success, error} = {}) => {
-  runScript(":del /s /q *.lintable", { err } => {
+const cleanup = ({ failure, success, error } = {}) => {
+  runScript(":del /s /q *.lintable", ({ err }) => {
     if (err || failure) {
-      const errorMsg = error || err
-      console.error(errorMsg)
-      exitFailure()
+      const errorMsg = error || err;
+      console.error(errorMsg);
+      exitFailure();
     }
     if (success) {
-      console.error('SUCCESS')
+      console.error("SUCCESS");
     }
-  }
-}
+  });
+};
 
 // Now we can run a script and invoke a callback when complete, e.g.
 runScript(":node ./make-vue-razor-views-lintable.js", ({ err }) => {
   if (err) {
-    cleanup({failure: true, error: err})
-  };
+    cleanup({ failure: true, error: err });
+  }
 
-  runScript(":eslint **/*.cshtml.lintable", { err } => {
-    const opts = err ? {failure: true} : {success: true}
-    cleanup(opts)
+  runScript(":eslint **/*.cshtml.lintable", ({ err }) => {
+    const opts = err ? { failure: true } : { success: true };
+    cleanup(opts);
   });
 });
+```
+
+For your convenience, a function `runLint` is made available:
+
+```js
+const path = require("path");
+const { runLint } = require("razor-vue-lint");
+const projectPath = path.join(__dirname, ".");
+runLint(projectPath);
 ```
 
 The `exec` function is a good choice if you need to use the shell syntax and if the size of the data expected from the command is small. (Remember, `exec` will buffer the whole data in memory before returning it.)

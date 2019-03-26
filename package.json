@@ -1,7 +1,7 @@
 {
   "name": "razor-vue-lint",
-  "version": "1.1.1",
-  "description": "Razor-VueJS Server rendered views linting ",
+  "version": "1.1.2",
+  "description": "linting for Razor server rendered views with inline VueJS templates (extensible, configurable)",
   "main": "index.js",
   "scripts": {
     "test": "jest"
@@ -11,10 +11,13 @@
     "vuejs",
     "razor",
     "mvc",
+    "eslint",
     "linting",
     "lint",
     "template",
-    "view"
+    "view",
+    "extensible",
+    "configurable"
   ],
   "author": "Kristian Mandrup",
   "license": "MIT",
