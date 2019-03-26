@@ -317,22 +317,13 @@ Add the following to your `package.json` file (or create a new one using `npm in
 }
 ```
 
-#### Lint views
+### Lint views
 
 Create a `scripts/lint-views.js` (or some other script) file which should:
 
 - run `node make-vue-razor-views-lintable.js` to create lintable version of your view files
 - run `eslint **/*.cshtml.lintable` to lint the lintable files and print linting errors
 - cleanup `.lintable` files so they are not committed
-
-See [Node.js Child Processes: Everything you need to know](https://medium.freecodecamp.org/node-js-child-processes-everything-you-need-to-know-e69498fe970a)
-
-Childprocess command alternatives:
-
-- `fork`
-- `spawn`
-- `exec`
-- `execFile`
 
 The runscript takes either a single string for a spawn command or an options object (fine control).
 For object, pass a `command` and either an `arg` (string) or `args` (array) of command arguments
@@ -384,9 +375,39 @@ For your convenience, a function `runLint` is made available:
 ```js
 const path = require("path");
 const { runLint } = require("razor-vue-lint");
-const projectPath = path.join(__dirname, ".");
-runLint(projectPath);
+const scriptPath = path.join(__dirname, "./make-vue-razor-views-lintable.js");
+runLint(scriptPath);
 ```
+
+#### Advanced usage
+
+```js
+const path = require("path");
+const { runLint } = require("razor-vue-lint");
+const rootPath = path.join(__dirname, "../src");
+
+const scriptPath = path.join(__dirname, "./make-vue-razor-views-lintable.js");
+const opts = {
+  os: "unix", // use default unix cleanup script
+  rootPath, // location of project to lint (and cleanup)
+  lintFileMatch: "**/*.cshtml" // assumes make lintable saved in original file
+};
+
+runLint(scriptPath);
+```
+
+For more customization and composition options, see the code in `run-lint.js`
+
+#### Running child processes
+
+See [Node.js Child Processes: Everything you need to know](https://medium.freecodecamp.org/node-js-child-processes-everything-you-need-to-know-e69498fe970a)
+
+Childprocess command alternatives:
+
+- `fork`
+- `spawn`
+- `exec`
+- `execFile`
 
 The `exec` function is a good choice if you need to use the shell syntax and if the size of the data expected from the command is small. (Remember, `exec` will buffer the whole data in memory before returning it.)
 
