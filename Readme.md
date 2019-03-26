@@ -79,9 +79,52 @@ Then you can setup eslint to lint the cshtml files using your Vue configuration 
 - `/* eslint-disable */`
 - `/* eslint-enable */`
 
-## Traverse
+## Extending and customizing replacers
 
-WIP: _not tested_
+The default expression rules are as follows:
+
+```js
+const exprs = {
+  inLine: /@[^:]+(\n)/gm,
+  inTag: /@[^:]+(<\/)/gm,
+  inAttribute: /('\s*)@[^:]+(')/gm
+};
+```
+
+With the default matchers configuration:
+
+```js
+const matchers = {
+  line: {
+    expr: exprs.inLine,
+    replace: replaceInLine
+  },
+  tag: {
+    expr: exprs.inTag,
+    replace: replaceInTag
+  },
+  attribute: {
+    expr: exprs.inAttribute,
+    replace: replaceInAttribute
+  }
+};
+```
+
+And precedence order, executed for each line
+
+```js
+const matcherKeys = ["attribute", "tag", "line"];
+```
+
+You can pass your own customized or extended `matchers` and `matcherKeys` in the second optional `options` argument.
+
+````js
+addIgnoreEsLintBlocksForRazorExpressions(code, {
+  matchers: myMatchers, // configuration used
+  matcherKeys: myMatcherKeys // order
+})
+
+## Traverse
 
 You can now use traverse functionality to:
 
@@ -101,7 +144,7 @@ const onSuccess = result => {
 };
 
 processFiles({ folder, onSuccess });
-```
+````
 
 ### Advanced usage
 

@@ -1,7 +1,7 @@
 const {
   matchText,
-  exprs,
   replaceAll,
+  exprs,
   replace
 } = require("./eslint-escape-razor-exprs");
 
@@ -15,7 +15,7 @@ describe("matchText", () => {
 
   describe("single Razor expression line", () => {
     const txt = "@using EPiServer.Core\n";
-    const matches = matchText(exprs.line, txt);
+    const matches = matchText(exprs.inLine, txt);
     test("has matches", () => {
       expect(matches).not.toBe(null);
       expect(matches.length).toBe(1);
@@ -54,7 +54,7 @@ describe("matchText", () => {
       const replaced = replace.inTag(txt);
       // console.log({ replaced });
       test("replace works", () => {
-        const expectedTag =
+        const expectedAttrib =
           '<strong v-if="offering.hasUnlimitedData">/* eslint-disable */\n@:Html.PropertyFor(m => m.CurrentBlock.UnlimitedDataLabel)/* eslint-enable */</strong>';
         expect(replaced).toEqual(expectedAttrib);
       });
@@ -80,39 +80,13 @@ describe("matchText", () => {
       const replaced = replace.inAttribute(txt);
       // console.log({ replaced });
       test("replace works", () => {
-        const expectedAttrib = `v-on:click.prevent="handleOfferingSelect(offering, '/* eslint-disable */\n@(Model.CurrentBlock.ConfirmButtonLink?.ID)/* eslint-enable */')"`;
+        const expectedAttrib = `v-on:click.prevent="handleOfferingSelect(offering, '/* eslint-disable */\n@:(Model.CurrentBlock.ConfirmButtonLink?.ID)/* eslint-enable */')"`;
         expect(replaced).toEqual(expectedAttrib);
       });
     });
   });
 
-  describe("Multiple Razor expression lines", () => {
-    const txt = "@using EPiServer.Core\n@using EPiServer.Web.Mvc.Html\n";
-    const matches = matchText(exprs.line, txt);
-    test("has matches", () => {
-      expect(matches).not.toBe(null);
-      expect(matches.length).toBe(2);
-    });
-
-    test("group 1", () => {
-      expect(matches[0]).toEqual("@using EPiServer.Core\n");
-    });
-    test("group 2", () => {
-      expect(matches[1]).toEqual("@using EPiServer.Web.Mvc.Html\n");
-    });
-
-    describe("replacer: lines", () => {
-      const replaced = replace.inLine(txt);
-      // console.log({ replaced, txt });
-      test("replace works", () => {
-        const expectedLines =
-          "/* eslint-disable */\n@:using EPiServer.Core\n/* eslint-enable */\n/* eslint-disable */\n@:using EPiServer.Web.Mvc.Html\n/* eslint-enable */\n";
-        expect(replaced).toEqual();
-      });
-    });
-  });
-
-  describe.only("Various Razor expression", () => {
+  describe("Various Razor expression", () => {
     const tag = `<strong v-if="offering.hasUnlimitedData">@Html.PropertyFor(m => m.CurrentBlock.UnlimitedDataLabel)</strong>`;
     const attrib = `v-on:click.prevent="handleOfferingSelect(offering, '@(Model.CurrentBlock.ConfirmButtonLink?.ID)')"`;
     const lines = "@using EPiServer.Core\n@using EPiServer.Web.Mvc.Html\n";

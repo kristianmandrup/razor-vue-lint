@@ -29,17 +29,29 @@ const matchText = (expr, text) => {
   return text.match(expr);
 };
 
+const exprs = {
+  inLine: /@[^:]+(\n)/gm,
+  inTag: /@[^:]+(<\/)/gm,
+  inAttribute: /('\s*)@[^:]+(')/gm
+};
+
+const replace = {
+  inLine: replaceInLine,
+  inTag: replaceInTag,
+  inAttribute: replaceInAttribute
+};
+
 const matchers = {
   line: {
-    expr: /@[^:]+(\n)/gm,
+    expr: exprs.inLine,
     replace: replaceInLine
   },
   tag: {
-    expr: /@[^:]+(<\/)/gm,
+    expr: exprs.inTag,
     replace: replaceInTag
   },
   attribute: {
-    expr: /('\s*)@[^:]+(')/gm,
+    expr: exprs.inAttribute,
     replace: replaceInAttribute
   }
 };
@@ -48,10 +60,20 @@ const matcherKeys = ["attribute", "tag", "line"];
 
 // const keysOf = Object.keys;
 
-const replaceTxtLine = txt => {
+const replaceTxtLine = (txt, opts = {}) => {
   if (txt.substring(txt.length - 1) != "\n") {
     txt = txt + "\n";
   }
+  let { matchers, matcherKeys } = opts;
+
+  if (!Array.isArray(matcherKeys)) {
+    throw `Invalid or missing: matcherKeys`;
+  }
+
+  if (!matchers) {
+    throw `Invalid or missing: matchers`;
+  }
+
   const replaced = matcherKeys.reduce(
     (acc, key) => {
       const accTxt = acc.txt;
@@ -77,6 +99,11 @@ RegExp.escape = function(string) {
   return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 };
 
+const defaults = {
+  matchers,
+  matcherKeys
+};
+
 const eslint = {
   enable: /\/\*\s+eslint-enable\s+\*\//,
   disable: /\/\*\s+eslint-disable\s+\*\//
@@ -91,9 +118,13 @@ const removeIndexed = lines => tag => index => {
   // console.log({ after: lines[index] });
 };
 
-const replaceAll = txt => {
+const replaceAll = (txt, opts = {}) => {
+  opts = {
+    ...defaults,
+    ...opts
+  };
   const lines = txt.split("\n");
-  let replacedLines = lines.map(replaceTxtLine);
+  let replacedLines = lines.map(line => replaceTxtLine(line, opts));
 
   const byLine = wasReplacedByLine(replacedLines);
   // console.log({ replacedLines });
@@ -131,5 +162,8 @@ const replaceAll = txt => {
 module.exports = {
   matchText,
   replaceAll,
-  matchers
+  matchers,
+  exprs,
+  replace,
+  defaults
 };
