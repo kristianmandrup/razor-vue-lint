@@ -43,22 +43,17 @@ const defaults = {
   exitFailure
 };
 
-const runLint = (scriptPath, opts = {}) => {
-  if (typeof scriptPath !== "string") {
-    throw `runLint: Missing or invalid scriptPath ${scriptPath}`;
-  }
-  const fileSys = opts.fs || fs;
-
-  if (!fileSys.existsSync(scriptPath)) {
-    throw `runLint: No such file ${scriptPath} exists in file system`;
-  }
-
-  const { debug } = opts;
+const runLintScript = (lintScript, opts = {}) => {
   const cleanup = opts.cleanup || defaults.cleanup;
-  const nodeScript = `:node ${scriptPath}`;
-  if (debug) {
-    console.log("run", nodeScript);
-  }
+
+  runScript(lintScript, ({ err }) => {
+    const opts = err ? { failure: true } : { success: true };
+    cleanup(opts);
+  });
+};
+
+const runEscapeScript = (nodeScript, opts = {}) => {
+  const cleanup = opts.cleanup || defaults.cleanup;
 
   runScript(nodeScript, ({ err }) => {
     if (err) {
@@ -78,16 +73,33 @@ const runLint = (scriptPath, opts = {}) => {
     if (debug) {
       console.log("run", lintScript);
     }
-
-    runScript(lintScript, ({ err }) => {
-      const opts = err ? { failure: true } : { success: true };
-      cleanup(opts);
-    });
+    runLintScript(lintScript, opts);
   });
+};
+
+const runLint = (scriptPath, opts = {}) => {
+  if (typeof scriptPath !== "string") {
+    throw `runLint: Missing or invalid scriptPath ${scriptPath}`;
+  }
+  const fileSys = opts.fs || fs;
+
+  if (!fileSys.existsSync(scriptPath)) {
+    throw `runLint: No such file ${scriptPath} exists in file system`;
+  }
+
+  const { debug } = opts;
+  const nodeScript = `:node ${scriptPath}`;
+  if (debug) {
+    console.log("run", nodeScript);
+  }
+
+  runEscapeScript(nodeScript, opts);
 };
 
 module.exports = {
   runLint,
+  runLintScript,
+  runEscapeScript,
   runScript,
   cleanup,
   exitFailure,

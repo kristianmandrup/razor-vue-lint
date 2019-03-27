@@ -400,6 +400,19 @@ runLint(scriptPath);
 
 For more customization and composition options, see the code in `run-lint.js`
 
+You can f.ex test the `runLintScript` and `runEscapeScript` individually before composing them into
+a scripting pipeline.
+
+```js
+const { runLintScript, runEscapeScript } = require("razor-vue-lint");
+
+const opts = {
+  debug: true
+};
+
+runLintScript(":eslint **/*.cshtml", opts);
+```
+
 #### Running child processes
 
 See [Node.js Child Processes: Everything you need to know](https://medium.freecodecamp.org/node-js-child-processes-everything-you-need-to-know-e69498fe970a)
