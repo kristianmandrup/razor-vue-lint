@@ -18,12 +18,16 @@ const chooseScript = (opts = {}) => {
 };
 
 const cleanup = (opts = {}) => {
-  let { failure, success, error, script, os } = opts;
+  const cleanupFn = opts.cleanupFn;
+  if (typeof cleanupFn === "function") {
+    cleanupFn(opts);
+  }
+
+  let { failure, success, error, script } = opts;
+  script = script || chooseScript(opts);
 
   const exitFailure = opts.exitFailure || defaults.exitFailure;
   const chooseScript = opts.chooseScript || defaults.chooseScript;
-
-  script = script || chooseScript(opts);
 
   runScript(script, ({ err }) => {
     if (err || failure) {
@@ -40,7 +44,11 @@ const defaults = {
   cleanup,
   cleanupOpts,
   cleanupScripts,
-  exitFailure
+  exitFailure,
+  runEscapeScript,
+  runInternalEscapeScript,
+  prepareAndRunLintScript,
+  runLintScript
 };
 
 const runLintScript = (lintScript, opts = {}) => {
@@ -52,6 +60,30 @@ const runLintScript = (lintScript, opts = {}) => {
   });
 };
 
+const runInternalEscapeScript = (nodeScript, opts = {}) => {
+  processFiles(opts);
+};
+
+const prepareAndRunLintScript = (opts = {}) => {
+  let { lintFileMatch, debug } = opts;
+
+  lintFileMatch =
+    lintFileMatch || path.join(process.cwd(), "**/*.cshtml.lintable");
+
+  if (typeof lintFileMatch !== "string") {
+    throw `runLint: Missing or invalid lintFileMatch ${lintFileMatch}`;
+  }
+
+  const lintScript = `:eslint ${lintFileMatch}`;
+  if (debug) {
+    console.log("run", lintScript);
+  }
+
+  const runLintScript = opts.runLintScript || defaults.runLintScript;
+
+  runLintScript(lintScript, opts);
+};
+
 const runEscapeScript = (nodeScript, opts = {}) => {
   const cleanup = opts.cleanup || defaults.cleanup;
 
@@ -60,20 +92,7 @@ const runEscapeScript = (nodeScript, opts = {}) => {
       cleanup({ failure: true, error: err });
     }
 
-    let { lintFileMatch } = opts;
-
-    lintFileMatch =
-      lintFileMatch || path.join(process.cwd(), "**/*.cshtml.lintable");
-
-    if (typeof lintFileMatch !== "string") {
-      throw `runLint: Missing or invalid lintFileMatch ${lintFileMatch}`;
-    }
-
-    const lintScript = `:eslint ${lintFileMatch}`;
-    if (debug) {
-      console.log("run", lintScript);
-    }
-    runLintScript(lintScript, opts);
+    prepareAndRunLintScript(opts);
   });
 };
 
@@ -92,6 +111,13 @@ const runLint = (scriptPath, opts = {}) => {
   if (debug) {
     console.log("run", nodeScript);
   }
+
+  const onSuccess = (processResult, options) => {
+    prepareAndRunLintScript({ processResult, ...options });
+  };
+  opts.onSuccess = opts.onSuccess || onSuccess;
+
+  const runEscapeScript = opts.runEscapeScript || defaults.runEscapeScript;
 
   runEscapeScript(nodeScript, opts);
 };

@@ -30,6 +30,7 @@ const processFile = (filePath, opts) => {
   }
   return {
     filePath,
+    destFilePath,
     content,
     written
   };

@@ -278,12 +278,14 @@ const rootPath = path.join(__dirname, "..");
 const srcPath = path.join(rootPath, srcFolder),
 
 const opts = {
-  folder,
+  folder: srcFolder,
+  rootPath,
+  srcPath,
   destFilePathOf: filePath => filePath + `.${fileExt}`,
   fileFilter: filePath => filePath.match(/\.cshtml$/),
   errorFn: err => throw err
 };
-processFiles({ folder, onSuccess });
+processFiles(opts);
 ```
 
 #### Cleanup after linting
@@ -376,6 +378,7 @@ For your convenience, a function `runLint` is made available:
 ```js
 const path = require("path");
 const { runLint } = require("razor-vue-lint");
+
 const scriptPath = path.join(__dirname, "./make-vue-razor-views-lintable.js");
 runLint(scriptPath);
 ```
@@ -385,10 +388,36 @@ runLint(scriptPath);
 ```js
 const path = require("path");
 const { runLint } = require("razor-vue-lint");
+
+const { defaults } = require("razor-vue-lint/src/run/run-lint");
+const { runInternalEscapeScript } = defaults;
+
 const rootPath = path.join(__dirname, "../src");
 
 const scriptPath = path.join(__dirname, "./make-vue-razor-views-lintable.js");
+
+const fs = require("fs");
+
+const removeFile = filePath => {
+  try {
+    fs.unlinkSync(filePath);
+    return filePath;
+  } catch (err) {
+    return false;
+  }
+};
+
+const cleanup = (opts = {}) => {
+  const { matched, processResult } = opts;
+  const destinationPaths = processResult.map(result => result.destFilePath);
+  // TODO: remove files in matched array
+  return destinationPaths.map(removeFile);
+};
+
 const opts = {
+  runEscapeScript: runInternalEscapeScript, // use processFiles directly, not through
+  cleanup, // custom cleanup
+  // fs, // optionally use fake fs for testing
   debug: true, // add debugging
   os: "unix", // use default unix cleanup script
   rootPath, // location of project to lint (and cleanup)
