@@ -1,6 +1,8 @@
 const childProcess = require("child_process");
 const defaultCommand = "spawn";
 
+const { logInfo, logError } = require("./util");
+
 function runScript(opts = {}, callback) {
   let shell = false;
   let arg;
@@ -38,11 +40,11 @@ function runScript(opts = {}, callback) {
   var process = childProcess[command](...args);
 
   process.stdout.on("data", data => {
-    console.log(data);
+    logInfo(data);
   });
 
   process.stderr.on("data", data => {
-    console.error(data);
+    logError(data);
   });
 
   // listen for errors as they may prevent the exit event from firing

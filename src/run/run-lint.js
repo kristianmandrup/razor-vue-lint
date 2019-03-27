@@ -1,10 +1,8 @@
 const path = require("path");
-const { runScript } = require("run-script");
+const fs = require("fs");
+const { runScript } = require("./run-script");
 
-const exitFailure = errorMsg => {
-  errorMsg && console.error(errorMsg);
-  Process.exit(1);
-};
+const { exitFailure } = require("./util");
 
 const cleanupOpts = { root: ".", fileMatch: "*.lintable" };
 
@@ -49,10 +47,20 @@ const runLint = (scriptPath, opts = {}) => {
   if (typeof scriptPath !== "string") {
     throw `runLint: Missing or invalid scriptPath ${scriptPath}`;
   }
+  const fileSys = opts.fs || fs;
 
+  if (!fileSys.existsSync(scriptPath)) {
+    throw `runLint: No such file ${scriptPath} exists in file system`;
+  }
+
+  const { debug } = opts;
   const cleanup = opts.cleanup || defaults.cleanup;
+  const nodeScript = `:node ${scriptPath}`;
+  if (debug) {
+    console.log("run", nodeScript);
+  }
 
-  runScript(`:node ${scriptPath}`, ({ err }) => {
+  runScript(nodeScript, ({ err }) => {
     if (err) {
       cleanup({ failure: true, error: err });
     }
@@ -66,14 +74,19 @@ const runLint = (scriptPath, opts = {}) => {
       throw `runLint: Missing or invalid lintFileMatch ${lintFileMatch}`;
     }
 
-    runScript(`:eslint ${lintFileMatch}`, ({ err }) => {
+    const lintScript = `:eslint ${lintFileMatch}`;
+    if (debug) {
+      console.log("run", lintScript);
+    }
+
+    runScript(lintScript, ({ err }) => {
       const opts = err ? { failure: true } : { success: true };
       cleanup(opts);
     });
   });
 };
 
-module.export = {
+module.exports = {
   runLint,
   runScript,
   cleanup,

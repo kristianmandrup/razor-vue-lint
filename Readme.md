@@ -389,6 +389,7 @@ const rootPath = path.join(__dirname, "../src");
 
 const scriptPath = path.join(__dirname, "./make-vue-razor-views-lintable.js");
 const opts = {
+  debug: true, // add debugging
   os: "unix", // use default unix cleanup script
   rootPath, // location of project to lint (and cleanup)
   lintFileMatch: "**/*.cshtml" // assumes make lintable saved in original file
