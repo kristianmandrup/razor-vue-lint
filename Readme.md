@@ -264,8 +264,9 @@ const defaults = {
 }
 if (args.help) {
   console.log(`
-format-cs
----------
+razor-views-lintable
+--------------------
+
   -s src folder (default: ./ )
   -e lintable file extension (default: lintable)
 `)
