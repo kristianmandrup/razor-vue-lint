@@ -60,14 +60,14 @@ Keep your Razor expressions and views simple!
 
 ## Usage
 
-The library exports the function `addIgnoreEsLintBlocksForRazorExpressions`, which takes a single string argument containing the code to be transformed. The function returns the transformed string, with razor expressions contained inside blocks ignored by ES lint.
+The library exports the function `esLintEscapeRazorExpressions`, which takes a single string argument containing the code to be transformed. The function returns the transformed string, with razor expressions contained inside blocks ignored by ES lint.
 
 ```js
-const { addIgnoreEsLintBlocksForRazorExpressions } = require("razor-vue-lint");
+const { esLintEscapeRazorExpressions } = require("razor-vue-lint");
 
 // TODO: load cshtml file into a string called code
 
-const lintEscapedCode = addIgnoreEsLintBlocksForRazorExpressions(code);
+const lintEscapedCode = esLintEscapeRazorExpressions(code);
 
 // TODO: write escaped cshtml file to a file
 ```

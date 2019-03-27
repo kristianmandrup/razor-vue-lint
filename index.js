@@ -4,7 +4,7 @@ const { runScript } = require("./src/run-script");
 const { runLint } = require("./src/run-lint");
 module.exports = {
   default: replaceAll,
-  addIgnoreEsLintBlocksForRazorExpressions: replaceAll,
+  esLintEscapeRazorExpressions: replaceAll,
   traverse,
   runScript,
   runLint

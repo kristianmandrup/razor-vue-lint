@@ -1,6 +1,5 @@
-const { processFiles, processFile } = require("./traverse");
-
-const { createFsFromVolume } = require("memfs");
+// processFile
+const { processFiles } = require("./traverse");
 
 const { folder } = require("../test/data/files");
 const { fs, mockFs } = require("../test/data/memfs");
