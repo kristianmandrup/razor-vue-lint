@@ -1,6 +1,6 @@
 {
   "name": "razor-vue-lint",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "Lint server rendered Razor views with inline VueJS templates",
   "main": "index.js",
   "scripts": {

@@ -408,20 +408,19 @@ const removeFile = filePath => {
 };
 
 const cleanup = (opts = {}) => {
-  const { matched, processResult } = opts;
-  const destinationPaths = processResult.map(result => result.destFilePath);
+  const { matched, processed } = opts;
+  const destinationPaths = processed.map(item => item.destFilePath);
   // TODO: remove files in matched array
   return destinationPaths.map(removeFile);
 };
 
 const opts = {
-  runEscapeScript: runInternalEscapeScript, // use processFiles directly, not through
-  cleanup, // custom cleanup
-  // fs, // optionally use fake fs for testing
+  // use processFiles function directly, instead of shell command
+  runEscapeScript: runInternalEscapeScript,
+  cleanup, // use custom cleanup function, using recursive delete on processed files
   debug: true, // add debugging
-  os: "unix", // use default unix cleanup script
   rootPath, // location of project to lint (and cleanup)
-  lintFileMatch: "**/*.cshtml" // assumes make lintable saved in original file
+  lintExt: ".cshtml" // assumes escaped/lintable views saved in (overrides) original .cshtml files
 };
 
 runLint(scriptPath);
