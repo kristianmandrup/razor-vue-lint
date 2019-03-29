@@ -118,11 +118,12 @@ const matcherKeys = ["attribute", "tag", "line"];
 
 You can pass your own customized or extended `matchers` and `matcherKeys` in the second optional `options` argument.
 
-````js
+```js
 addIgnoreEsLintBlocksForRazorExpressions(code, {
   matchers: myMatchers, // configuration used
   matcherKeys: myMatcherKeys // order
-})
+});
+```
 
 ## Traverse
 
@@ -144,7 +145,7 @@ const onSuccess = result => {
 };
 
 processFiles({ folder, onSuccess });
-````
+```
 
 ### Advanced usage
 
@@ -295,6 +296,8 @@ Cleanup (remove) the `.lintable` files after linting.
 [Windows](https://superuser.com/questions/546213/remove-folders-maching-pattern-recursively-in-windows) `> del /s /q *.lintable`
 [Unix](https://unix.stackexchange.com/questions/116389/recursively-delete-all-files-with-a-given-extension) `$ find . -type f -name '*.lintable' -delete`
 
+As an alternative, you can pass in your own custom `cleanup` function (see [Advanced](#Advanced-usage) section below)
+
 ## Pre-commit hooks
 
 You can use this recipe to integrate this linting process with git hooks, such as pre-commit hooks:
@@ -385,17 +388,9 @@ runLint(scriptPath);
 
 #### Advanced usage
 
+Create a custom `cleanup` function in `cleanup.js` that cleans up all processed files (ie. paths to files that were escaped for linting and saved to disk)
+
 ```js
-const path = require("path");
-const { runLint } = require("razor-vue-lint");
-
-const { defaults } = require("razor-vue-lint/src/run/run-lint");
-const { runInternalEscapeScript } = defaults;
-
-const rootPath = path.join(__dirname, "../src");
-
-const scriptPath = path.join(__dirname, "./make-vue-razor-views-lintable.js");
-
 const fs = require("fs");
 
 const removeFile = filePath => {
@@ -414,13 +409,30 @@ const cleanup = (opts = {}) => {
   return destinationPaths.map(removeFile);
 };
 
+module.exports = cleanup;
+```
+
+```js
+const path = require("path");
+const { runLint } = require("razor-vue-lint");
+
+const { defaults } = require("razor-vue-lint/src/run/run-lint");
+const { runInternalEscapeScript } = defaults;
+
+const rootPath = path.join(__dirname, "../src");
+
+const scriptPath = path.join(__dirname, "./make-vue-razor-views-lintable.js");
+
+// import custom cleanup function
+const { cleanup } = require("./cleanup");
+
 const opts = {
   // use processFiles function directly, instead of shell command
   runEscapeScript: runInternalEscapeScript,
   cleanup, // use custom cleanup function, using recursive delete on processed files
   debug: true, // add debugging
   rootPath, // location of project to lint (and cleanup)
-  lintExt: ".cshtml" // assumes escaped/lintable views saved in (overrides) original .cshtml files
+  lintExt: ".cshtml.lintable"
 };
 
 runLint(scriptPath);
