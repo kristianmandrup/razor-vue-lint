@@ -173,7 +173,7 @@ const opts = {
 processFiles({ folder, onSuccess });
 ```
 
-See `traverse.js` source for more configuration options. You can also use the internal functions to easily compose custom traverse/transform functionality.
+See `[traverse.js](src/traverse.js)` source for more configuration options. You can also use the internal functions to easily compose custom traverse/transform functionality.
 
 ## Linting
 
